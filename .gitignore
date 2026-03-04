@@ -1,0 +1,17 @@
+# Виртуальное окружение
+venv/
+.venv/
+
+# Файлы с секретами
+.env
+*.db
+
+# Кэш Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# PyCharm
+.idea/
+*.iml
