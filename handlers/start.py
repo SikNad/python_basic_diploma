@@ -37,13 +37,3 @@ def hello_text(message: Message):
     )
 
     bot.reply_to(message, welcome_text)
-
-
-@bot.message_handler(func=lambda message: True)
-def echo_all(message: Message):
-    """Временный обработчик для всех сообщений"""
-    bot.reply_to(
-        message,
-        "Я пока учусь и понимаю только /hello-world и 'Привет'. "
-        "Скоро добавлю новые команды!"
-    )
