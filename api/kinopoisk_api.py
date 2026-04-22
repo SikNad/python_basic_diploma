@@ -3,64 +3,57 @@ from config import API_KEY
 
 
 class KinopoiskAPI:
+    """Класс для работы с API Кинопоиска"""
+
+    BASE_URL = "https://api.kinopoisk.dev/v1.4"
+
     def __init__(self):
-        self.base_url = "https://kinopoiskapiunofficial.tech"
         self.headers = {
-            'X-API-KEY': API_KEY,
-            'Content-Type': 'application/json'
+            "X-API-KEY": API_KEY,
+            "Content-Type": "application/json"
         }
 
-    def search_by_keyword(self, keyword, page=1):
-        """Поиск фильмов по ключевому слову"""
-        url = f"{self.base_url}/api/v2.1/films/search-by-keyword"
+    def search_movie(self, query: str, limit: int = 5):
+        """
+        Поиск фильмов по названию.
+        Возвращает список фильмов.
+        """
+        url = f"{self.BASE_URL}/movie/search"
         params = {
-            'keyword': keyword,
-            'page': page
+            "query": query,
+            "limit": limit
         }
 
         try:
             response = requests.get(url, headers=self.headers, params=params)
             response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            print(f"Ошибка API при поиске: {e}")
-            return None
+            data = response.json()
 
-    def get_films_by_rating(self, rating_from=7, rating_to=10, year_from=2010, year_to=2025):
-        """Поиск фильмов по рейтингу"""
-        # Для реального API Кинопоиска нужен другой эндпоинт
-        # Это упрощенная версия, позже уточним точный метод
-        url = f"{self.base_url}/api/v2.2/films"
-        params = {
-            'ratingFrom': rating_from,
-            'ratingTo': rating_to,
-            'yearFrom': year_from,
-            'yearTo': year_to,
-            'order': 'RATING',
-            'type': 'FILM'
-        }
+            movies = []
+            for doc in data.get('docs', []):
+                movies.append({
+                    'id': doc.get('id'),
+                    'title': doc.get('name') or doc.get('alternativeName'),
+                    'year': doc.get('year'),
+                    'rating': doc.get('rating', {}).get('kp'),
+                    'description': doc.get('description'),
+                    'poster': doc.get('poster', {}).get('url')
+                })
 
-        try:
-            response = requests.get(url, headers=self.headers, params=params)
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            print(f"Ошибка API при поиске по рейтингу: {e}")
-            return None
+            return movies
 
-    def get_films_by_budget(self, budget_from=0, budget_to=1000000):
-        """Поиск фильмов по бюджету (в долларах)"""
-        # Аналогично, уточним эндпоинт позже
-        pass
+        except requests.exceptions.RequestException as e:
+            print(f"Ошибка API: {e}")
+            return []
 
-    def get_movie_details(self, film_id):
-        """Получение детальной информации о фильме"""
-        url = f"{self.base_url}/api/v2.2/films/{film_id}"
+    def get_movie_details(self, movie_id: int):
+        """Получение детальной информации о фильме по ID"""
+        url = f"{self.BASE_URL}/movie/{movie_id}"
 
         try:
             response = requests.get(url, headers=self.headers)
             response.raise_for_status()
             return response.json()
-        except Exception as e:
-            print(f"Ошибка API при получении деталей: {e}")
+        except requests.exceptions.RequestException as e:
+            print(f"Ошибка получения деталей: {e}")
             return None

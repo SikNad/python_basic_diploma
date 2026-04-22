@@ -1,20 +1,19 @@
 from loader import bot
 from telebot.types import Message
+from keyboards.reply import get_main_keyboard
 
 
 @bot.message_handler(commands=['help'])
 def help_command(message: Message):
-    """Показывает список доступных команд"""
-    help_text = (
-        "🎬 *Команды кино-бота:*\n\n"
-        "🔍 /search <название> - поиск фильмов\n"
-        "📽 /film <id> - детали фильма по ID\n"
-        "📋 /history - история ваших запросов\n"
-        "🎲 /random - случайный фильм (скоро)\n"
-        "🔥 /trends - популярные фильмы (скоро)\n"
-        "🌟 /upcoming - ожидаемые новинки (скоро)\n\n"
-        "👋 /hello-world - приветствие\n"
-        "❓ /help - это сообщение"
+    """Помощь по командам"""
+    bot.reply_to(
+        message,
+        "🤖 *Помощь по командам бота:*\n\n"
+        "🔍 */search <название>* — поиск фильма\n"
+        "   Пример: `/search Матрица`\n\n"
+        "📜 */history* — показать историю поиска\n\n"
+        "🆘 */help* — показать это сообщение\n\n"
+        "✨ *Совет:* Можно использовать клавиатуру под полем ввода!",
+        parse_mode='Markdown',
+        reply_markup=get_main_keyboard()
     )
-
-    bot.reply_to(message, help_text, parse_mode='Markdown')

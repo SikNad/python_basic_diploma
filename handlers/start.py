@@ -1,39 +1,62 @@
 from loader import bot
 from telebot.types import Message
-from database.models import User
+from database.user_service import get_or_create_user
+
+
+@bot.message_handler(commands=['start'])
+def start_command(message: Message):
+    """Обработчик команды /start - первая точка входа"""
+    user = get_or_create_user(message)
+
+    welcome_text = (
+        f"🎬 Привет, {message.from_user.first_name}!\n\n"
+        "Я бот для поиска фильмов. Вот что я умею:\n\n"
+        "🔍 /search <название> - найти фильм\n"
+        "📜 /history - показать историю поиска\n"
+        "❓ /help - помощь\n\n"
+        "Попробуй прямо сейчас: /search Матрица"
+    )
+    bot.reply_to(message, welcome_text)
 
 
 @bot.message_handler(commands=['hello-world'])
 def hello_world_command(message: Message):
     """Обработчик команды /hello-world"""
+    user = get_or_create_user(message)
     bot.reply_to(
         message,
         "🌟 Привет, мир! Я бот для поиска фильмов. Используй /help для списка команд."
     )
 
 
+@bot.message_handler(commands=['help'])
+def help_command(message: Message):
+    """Обработчик команды /help"""
+    user = get_or_create_user(message)
+
+    help_text = (
+        "📖 *Доступные команды:*\n\n"
+        "/start - Начать работу с ботом\n"
+        "/search <название> - Поиск фильма\n"
+        "/history - История ваших поисков\n"
+        "/hello-world - Тестовая команда\n"
+        "/help - Эта справка\n\n"
+        "📝 *Пример:* `/search Матрица`"
+    )
+    bot.reply_to(message, help_text, parse_mode='Markdown')
+
+
 @bot.message_handler(func=lambda message: message.text.lower() == 'привет')
 def hello_text(message: Message):
     """Обработчик текста 'Привет'"""
-    user_id = message.from_user.id
-
-    # Сохраняем пользователя в БД
-    user, created = User.get_or_create(
-        user_id=user_id,
-        defaults={
-            'username': message.from_user.username,
-            'first_name': message.from_user.first_name
-        }
-    )
+    user = get_or_create_user(message)
 
     welcome_text = (
         f"👋 Привет, {message.from_user.first_name}!\n\n"
-        "Я бот для поиска фильмов. В будущем я научусь:\n"
-        "• Искать фильмы по названию\n"
-        "• Искать по рейтингу\n"
-        "• Искать по бюджету\n"
-        "• Хранить историю запросов\n\n"
-        "А пока я понимаю только /hello-world и 'Привет'"
+        "Я бот для поиска фильмов. Вот что я умею:\n\n"
+        "🔍 /search <название> - найти фильм\n"
+        "📜 /history - показать историю поиска\n"
+        "❓ /help - помощь\n\n"
+        "Попробуй прямо сейчас: /search Матрица"
     )
-
     bot.reply_to(message, welcome_text)

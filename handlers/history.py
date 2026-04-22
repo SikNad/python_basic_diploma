@@ -1,46 +1,55 @@
 from loader import bot
 from telebot.types import Message
-from database.models import SearchHistory, User
-from keyboards.reply import get_main_keyboard
-import json
+from database.models import User, SearchHistory
 
 
 @bot.message_handler(commands=['history'])
-def history_command(message: Message):
+def show_history(message: Message):
     """Показать историю поиска пользователя"""
-    user_id = message.from_user.id
+    try:
+        # Находим пользователя
+        try:
+            user = User.get(User.user_id == message.from_user.id)
+        except User.DoesNotExist:
+            bot.reply_to(
+                message,
+                "📭 У вас пока нет истории поиска.\n"
+                "Используйте /search <название фильма> для поиска."
+            )
+            return
 
-    # Получаем последние 10 записей истории
-    history = (SearchHistory
-               .select()
-               .join(User)
-               .where(User.user_id == user_id)
-               .order_by(SearchHistory.created_at.desc())
-               .limit(10))
+        # Получаем историю
+        history = SearchHistory.select().where(
+            SearchHistory.user == user
+        ).order_by(SearchHistory.created_at.desc()).limit(10)
 
-    if not history:
+        # Проверяем, есть ли записи
+        if not history.exists():
+            bot.reply_to(
+                message,
+                "📭 У вас пока нет истории поиска.\n"
+                "Используйте /search <название фильма> для поиска."
+            )
+            return
+
+        # Формируем сообщение
+        text = "📜 *Ваша история поиска (последние 10):*\n\n"
+
+        for item in history:
+            results_count = len(item.get_results_list()) if item.results else 0
+            text += f"• *{item.created_at.strftime('%d.%m.%Y %H:%M')}*\n"
+            text += f"  🔍 *{item.command}:* `{item.query}`\n"
+            text += f"  📊 Найдено: {results_count} фильмов\n\n"
+
         bot.send_message(
             message.chat.id,
-            "📭 У вас пока нет истории поиска. Используйте команды поиска фильмов!",
-            reply_markup=get_main_keyboard()
+            text,
+            parse_mode='Markdown'
         )
-        return
 
-    # Формируем сообщение с историей
-    text = "📋 *Ваша история поиска:*\n\n"
-
-    for idx, record in enumerate(history, 1):
-        text += f"{idx}. {record}\n"
-
-    bot.send_message(
-        message.chat.id,
-        text,
-        parse_mode='Markdown',
-        reply_markup=get_main_keyboard()
-    )
-
-
-@bot.message_handler(func=lambda message: message.text == "📋 История поиска")
-def history_button(message: Message):
-    """Обработчик кнопки истории"""
-    history_command(message)
+    except Exception as e:
+        print(f"❌ Ошибка при показе истории: {e}")
+        bot.reply_to(
+            message,
+            "❌ Произошла ошибка при загрузке истории. Попробуйте позже."
+        )
