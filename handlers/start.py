@@ -40,10 +40,25 @@ def help_command(message: Message):
         "/search <название> - Поиск фильма\n"
         "/history - История ваших поисков\n"
         "/hello-world - Тестовая команда\n"
-        "/help - Эта справка\n\n"
+        "/help - Эта справка\n"
+        "/donate - Поддержать разработчика\n\n"
         "📝 *Пример:* `/search Матрица`"
     )
     bot.reply_to(message, help_text, parse_mode='Markdown')
+
+
+@bot.message_handler(commands=['donate'])
+def donate_command(message: Message):
+    """Обработчик команды /donate - поддержать разработчика"""
+    donate_url = "https://donate.stream/yoomoney4100119521365903"
+    donate_text = (
+        "☕️ **Поддержать разработчика**\n\n"
+        "Если вам нравится бот и вы хотите помочь его развитию, "
+        "вы можете отправить донат по ссылке ниже:\n\n"
+        f"[Отправить донат]({donate_url})\n\n"
+        "Спасибо за поддержку! 💖"
+    )
+    bot.send_message(message.chat.id, donate_text, parse_mode='Markdown')
 
 
 @bot.message_handler(func=lambda message: message.text.lower() == 'привет')
