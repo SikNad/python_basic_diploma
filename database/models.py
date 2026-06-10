@@ -14,6 +14,8 @@ class User(BaseModel):
     username = CharField(null=True)
     first_name = CharField()
     created_at = DateTimeField(default=datetime.datetime.now)
+    is_premium = IntegerField(default=0)  # 0 = бесплатный, 1 = премиум
+    daily_searches = IntegerField(default=0)  # счётчик запросов за день
 
 
 class SearchHistory(BaseModel):

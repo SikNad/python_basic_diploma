@@ -1,17 +1,42 @@
+
 # Виртуальное окружение
 venv/
 .venv/
+env/
+.env/
 
-# Файлы с секретами
+# Секреты и переменные окружения
 .env
+.env.*
+*.key
+*.pem
+
+# Базы данных
 *.db
+*.sqlite
+*.sqlite3
 
 # Кэш Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 
-# PyCharm
+# IDE
+.vscode/
 .idea/
-*.iml
+*.swp
+*.swo
+*~
+
+# Логи
+*.log
+
+# Тестовые файлы (в них могут быть следы токенов)
+test_*.py
+*_test.py
+quick_test.py
+simple_test.py
+
+# Файлы с настройками (если есть конфиги с секретами)
+config.py

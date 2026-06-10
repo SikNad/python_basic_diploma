@@ -76,6 +76,9 @@ def search_movie_command(message: Message):
     """Обработчик команды /search <название фильма>"""
     try:
         user = get_or_create_user(message)
+        if not user.is_premium and user.daily_searches >= 5:
+            bot.reply_to(message, "Лимит 5 запросов/день. /subscribe для безлимита")
+            return
 
         # Получаем текст после команды
         query_parts = message.text.split(maxsplit=1)
@@ -99,7 +102,7 @@ def search_movie_command(message: Message):
         bot.reply_to(message, f"🔍 Ищу фильмы по запросу: *{query}*...", parse_mode='Markdown')
 
         # Ищем фильмы в локальной базе
-        movies = search_local_movies(query)
+        movies = search_kinopoisk_api(query)  # уже написан в kinopoisk_api.py!
 
         if not movies:
             # Показываем доступные категории
