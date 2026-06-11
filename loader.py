@@ -11,7 +11,7 @@ apihelper.CONNECT_TIMEOUT = 30  # Таймаут подключения (сек�
 apihelper.READ_TIMEOUT = 30     # Таймаут чтения (секунды)
 
 # Токен бота
-BOT_TOKEN = "8601470478:AAEsIAJo-a9YX3mbazWo5E7ZOL6YzjHprJE"
+from config import BOT_TOKEN
 
 # Хранилище состояний
 state_storage = StateMemoryStorage()
